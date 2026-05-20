@@ -11,6 +11,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Team Task API is running',
+    dbConfigured: Boolean(process.env.MONGODB_URI),
+  });
+});
+
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -18,14 +26,10 @@ app.use(async (req, res, next) => {
   } catch (error) {
     const message =
       error.message === 'MONGODB_URI is not configured'
-        ? 'Server misconfigured: MONGODB_URI missing in Vercel environment variables'
-        : 'Database connection failed';
+        ? 'Server misconfigured: add MONGODB_URI in Vercel environment variables'
+        : 'Database connection failed — check MongoDB Atlas IP allowlist (0.0.0.0/0)';
     res.status(500).json({ success: false, message });
   }
-});
-
-app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'Team Task API is running' });
 });
 
 app.use('/api/auth', authRoutes);

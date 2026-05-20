@@ -8,7 +8,22 @@ async function request(path, options = {}) {
     ...options.headers,
   };
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+  } catch (err) {
+    handleFetchError(err);
+  } finally {
+    clearTimeout(timeout);
+  }
+
   const text = await res.text();
   let data = {};
   try {
@@ -29,6 +44,13 @@ async function request(path, options = {}) {
   }
 
   return data;
+}
+
+function handleFetchError(err) {
+  if (err.name === 'AbortError') {
+    throw new Error('Request timed out — API or database not responding. Check Vercel env vars.');
+  }
+  throw err;
 }
 
 export const api = {

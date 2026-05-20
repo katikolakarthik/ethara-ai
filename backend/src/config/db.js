@@ -11,18 +11,30 @@ async function connectDB() {
     return cached.conn;
   }
 
-  if (!cached.promise) {
-    const uri = process.env.MONGODB_URI;
-    if (!uri) {
-      const err = new Error('MONGODB_URI is not configured');
-      err.statusCode = 500;
-      throw err;
-    }
-
-    cached.promise = mongoose.connect(uri).then((mongooseInstance) => mongooseInstance);
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    const err = new Error('MONGODB_URI is not configured');
+    err.statusCode = 500;
+    throw err;
   }
 
-  cached.conn = await cached.promise;
+  if (!cached.promise) {
+    cached.promise = mongoose
+      .connect(uri, {
+        serverSelectionTimeoutMS: 8000,
+        connectTimeoutMS: 8000,
+      })
+      .then((mongooseInstance) => mongooseInstance);
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    cached.promise = null;
+    cached.conn = null;
+    throw error;
+  }
+
   return cached.conn;
 }
 
