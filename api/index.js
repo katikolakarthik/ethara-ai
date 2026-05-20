@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../backend/.env') });
+require('dotenv').config();
 const serverless = require('serverless-http');
 const app = require('../backend/src/app');
 
