@@ -9,7 +9,19 @@ async function request(path, options = {}) {
   };
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
+  const text = await res.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    if (!res.ok) {
+      throw new Error(
+        res.status >= 500
+          ? 'API server error — check Vercel env vars (MONGODB_URI, JWT_SECRET) and redeploy'
+          : 'Request failed'
+      );
+    }
+  }
 
   if (!res.ok) {
     const message = data.message || data.errors?.[0]?.message || 'Request failed';

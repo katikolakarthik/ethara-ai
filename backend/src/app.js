@@ -16,7 +16,11 @@ app.use(async (req, res, next) => {
     await connectDB();
     next();
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Database connection failed' });
+    const message =
+      error.message === 'MONGODB_URI is not configured'
+        ? 'Server misconfigured: MONGODB_URI missing in Vercel environment variables'
+        : 'Database connection failed';
+    res.status(500).json({ success: false, message });
   }
 });
 
