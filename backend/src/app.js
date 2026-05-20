@@ -11,7 +11,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/health', (req, res) => {
+const api = express.Router();
+
+api.get('/health', (req, res) => {
   res.json({
     success: true,
     message: 'Team Task API is running',
@@ -19,7 +21,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.use(async (req, res, next) => {
+api.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
@@ -32,10 +34,15 @@ app.use(async (req, res, next) => {
   }
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/projects/:id/tasks', taskRoutes);
-app.use('/api/projects/:id/dashboard', dashboardRoutes);
+api.use('/auth', authRoutes);
+api.use('/projects', projectRoutes);
+api.use('/projects/:id/tasks', taskRoutes);
+api.use('/projects/:id/dashboard', dashboardRoutes);
+
+// Local dev: requests come as /api/auth/login
+app.use('/api', api);
+// Vercel Services (routePrefix /api): requests arrive as /auth/login
+app.use('/', api);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
