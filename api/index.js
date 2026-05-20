@@ -1,5 +1,2 @@
-require('dotenv').config();
-const serverless = require('serverless-http');
-const app = require('../backend/src/app');
-
-module.exports = serverless(app);
+// Legacy serverless entry (if using classic /api routing)
+module.exports = require('../backend/src/app');

@@ -8,7 +8,9 @@
     "api": {
       "entrypoint": "backend",
       "routePrefix": "/api",
-      "framework": "express"
+      "framework": "express",
+      "maxDuration": 60,
+      "memory": 1024
     }
   }
 }

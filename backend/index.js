@@ -1,5 +1,2 @@
-require('dotenv').config();
-const serverless = require('serverless-http');
-const app = require('./src/app');
-
-module.exports = serverless(app);
+// Vercel Express: export the app directly (no serverless-http, no app.listen)
+module.exports = require('./src/app');
